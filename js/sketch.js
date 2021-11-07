@@ -9,200 +9,145 @@ Proyecto para la clase de
 Universidad de La Sabana
 */
 
-firstTime = true;
-//Posición inicial del jugador
-var x = 225;
-//Color del jugador
-var rojo = "#FF5733";
-var enemies = [];
-var disparos = [];
-var player;
-//Cargar el fondo
+var partidaRecienCreada = true;
+var listaEnemigos = [];
+var disparosEnemigos = [];
+var disparosJugador = [];
+var jugador;
+
 function preload() {
-	imagen = "media/cielo.jpg";
-	cielo = loadImage(imagen);
-	imagen1 = "media/player.png";
-	playerImg = loadImage(imagen1);
-	imagen2 = "media/enemy.png";
-	enemyImg = loadImage(imagen2);
+	imagenCielo = loadImage("media/cielo.jpg");
+	spriteJugador = loadImage("media/jugador.png");
+	spriteEnemigo = loadImage("media/enemigo.png");
 }
 
 function setup() {
 	createCanvas(500, 500);
-	player = new Player();
+	jugador = new Jugador(225);
 }
 
 function draw() {
-	background(cielo);
+	background(imagenCielo);
 
-	//Pinta al jugador
-	fill(rojo);
-
-	//dibuja al jugador, tomando X en cada posición, si X cambia, el jugador se mueve.
-	player.draw();
-	player.reconocerInput();
-
-	var enemigos (width, Y++){
-		//Dibuja los enemigos la primera vez
-		if (firstTime) {
-			//Crea a los enemigos
-			for (i = 40; i < width - 60; i += 50) {
-				enemy = new Enemy(i = 20);
-				enemy.draw();
-
-				//introduce en el arreglo enemies, el enemigo creado en este for.
-				append(enemies, enemy);
-			}
-			// Segunda linea de enemigos
-			for (i = 40, 100; i < width - 60; i += 50, 50) {
-				enemy = new Enemy(i, 70 + 50);
-				enemy.draw();
-				//introduce en el arreglo enemies, el enemigo creado en este for.
-				append(enemies, enemy);
-			}
-			//Tercera linea 
-
-			for (i = 40, 100; i < width - 60; i += 50, 50) {
-				enemy = new Enemy(i, 120);
-				enemy.draw();
-				//introduce en el arreglo enemies, el enemigo creado en este for.
-				append(enemies, enemy);
-			}
-		}
-
+	if (partidaRecienCreada) {
+		crearHileraEnemigos(20);
+		crearHileraEnemigos(120);
+		crearHileraEnemigos(220);
+		partidaRecienCreada = false;
+	} else {
+		enemigosVivos = listaEnemigos.filter(enemigo => enemigo.estaVivo)
+		enemigosVivos.forEach(enemigo => enemigo.crear())
 	}
 
-	//Dibuja los enemigos el resto de veces.
-	if (!firstTime) {
-		for (i = 0; i < enemies.length; i++) {
-			if (enemies[i].vive()) {
-				enemies[i].draw();
-			}
-		}
-	}
+	jugador.crear();
+	disparosJugador.forEach(disparo => disparo.moverse());
+}
 
+function crearHileraEnemigos(posicionY) {
+	for (posicionX = 40; posicionX < width - 60; posicionX += 50) {
+		enemigo = new Enemigo(posicionX, posicionY);
+		enemigo.crear();
 
-
-	firstTime = false;
-
-	//hace avanzar verticalmente los disparos
-	for (i = 0; i < disparos.length; i++) {
-		disparos[i].avanza();
-	}
-
-	//Revisa constantemente si los enemigos han recibido disparos, en caso de ser así, quita al enemigo del mapa, y elimina al disparo.
-	for (i = 0; i < enemies.length; i++) {
-		for (j = 0; j < disparos.length; j++) {
-			if (enemies[i].muere(disparos[j])) {
-				disparos.splice(j, 1);
-			}
-		}
+		listaEnemigos.push(enemigo);
 	}
 }
 
-function mouseClicked() {
-	player.disparar();
+function mousePressed() {
+	jugador.disparar();
+	console.log(jugador.posicionX);
 }
 
-class Player {
-	constructor() {
-		this.x = x;
+class Jugador {
+	constructor(posicionX) {
+		this.posicionX = posicionX;
+		this.posicionY = 420;
 	}
 
-	draw() {
-		image(playerImg, this.x, 425);
+	crear() {
+		image(spriteJugador, this.posicionX, 420);
+		this.reconocerInput()
 	}
 
-	//reconoce el input, y mueve el jugador hacia el lado correspondiente
 	reconocerInput() {
 		if (keyIsDown(LEFT_ARROW)) {
-			if (this.x > 0)
-				this.x -= 3;
+			if (this.posicionX > 0)
+				this.posicionX -= 3;
 		}
 		if (keyIsDown(RIGHT_ARROW)) {
-			if (this.x + 64 < width)
-				this.x += 3;
+			if (this.posicionX < 429)
+				this.posicionX += 3;
 		}
 	}
 
-	//Crea el disparo
 	disparar() {
-		var disparo = new Disparo(this.x);
-		append(disparos, disparo);
-		print(this.x);
-	}
-
-	//devuelve la posición actual del jugador
-	posicionX() {
-		return this.x;
+		var disparo = new Disparo(
+			this.posicionX + 32.3,
+			this.posicionY,
+			-5,
+			"#33b2ff",
+			"#1082c8"
+		);
+		disparo.crear()
+		disparosJugador.push(disparo);
 	}
 }
 
-class Enemy {
-	constructor(posX, posY) {
-		this.x = posX;
-		this.y = posY;
-		this.life = true;
+class Enemigo {
+	constructor(posicionX, posicionY) {
+		this.posicionX = posicionX;
+		this.posicionY = posicionY;
+		this.estaVivo = true;
 	}
 
-	draw() {
-		image(enemyImg, this.x, this.y);
+	crear() {
+		image(spriteEnemigo, this.posicionX, this.posicionY);
 	}
 
-	//Moverá al enemigo hacia abajo
-	move() {
-		this.y += 5;
+	moverse() {
+		this.posicionY += 5;
+	}
+	
+	disparar() {
+		var disparoEnemigo = new Disparo(
+			this.posicionX + 18.2,
+			this.posicionY,
+			5,
+			"#ec360f",
+			"#f09811"
+		);
+		disparoEnemigo.crear()
+		disparosEnemigos.push(disparoEnemigo);
 	}
 
-	//Calcula si el enemigo ha sido o no tocado por un disparo
-	muere(disparo) {
-		if (disparo.posicionX() > this.x && disparo.posicionX() < this.x + 40) {
-			if (disparo.posicionY() <= this.y + 40) {
-				this.life = false;
+	recibioDisparo(disparo) {
+		if ((disparo.posicionX > this.posicionX) && (disparo.posicionX < this.posicionX + 40)) {
+			if (disparo.posicionY <= this.posicionY + 40) {
+				this.estaVivo = false;
 				return true;
 			}
-		}
-		else {
+		} else {
 			return false;
 		}
-	}
-
-	vive() {
-		return this.life;
-	}
-
-	posicionX() {
-		return this.x;
-	}
-
-	posicionY() {
-		return this.y;
 	}
 }
 
 class Disparo {
-	constructor(posX) {
-		this.x = posX + 32;
-		this.y = 425;
-		this.velocidad = -5;
+	constructor(posicionX, posicionY, velocidad, color, aura) {
+		this.posicionX = posicionX;
+		this.posicionY = posicionY;
+		this.velocidad = velocidad;
+		this.color = color;
+		this.aura = aura;
 	}
 
-	draw() {
-		rect(this.x + 32, this.y, 5, 15);
+	crear() {
+		stroke(this.aura);
+		fill(this.color);
+		rect(this.posicionX, this.posicionY, 5, 15);
 	}
 
-	avanza() {
-		this.y += this.velocidad;
-		if (this.velocidad <= -1)
-			this.velocidad += 0.05;
-		rect(this.x, this.y, 5, 15);
-	}
-
-	posicionX() {
-		return this.x;
-	}
-
-	posicionY() {
-		return this.y;
+	moverse() {
+		this.posicionY += this.velocidad;
+		rect(this.posicionX, this.posicionY, 5, 15);
 	}
 }
