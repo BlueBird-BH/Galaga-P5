@@ -12,7 +12,6 @@ Universidad de La Sabana
 // Variables
 var partidaRecienCreada = true;
 var listaEnemigos = [];
-var disparosEnemigos = [];
 var disparosJugador = [];
 var jugador;
 
