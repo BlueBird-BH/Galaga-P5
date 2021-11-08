@@ -22,13 +22,13 @@ var rojo = "#ec360f";
 var naranja = "#f09811";
 
 function preload() {
-    musicaFondo = loadSound("media/musicaFondo.mp3");
-    audioDisparoJugador = loadSound("media/disparoJugador.wav");
-    audioMuerteEnemigo = loadSound("media/muerteEnemigo.wav");
-    audioVictoria = loadSound("media/victoria.wav");
-    imagenCielo = loadImage("media/cielo.jpg");
-    spriteJugador = loadImage("media/jugador.png");
-    spriteEnemigo = loadImage("media/enemigo.png");
+    var musicaFondo = loadSound("media/musicaFondo.mp3");
+    var	audioDisparoJugador = loadSound("media/disparoJugador.wav");
+    var audioMuerteEnemigo = loadSound("media/muerteEnemigo.wav");
+    var audioVictoria = loadSound("media/victoria.wav");
+    var imagenCielo = loadImage("media/cielo.jpg");
+    var spriteJugador = loadImage("media/jugador.png");
+    var spriteEnemigo = loadImage("media/enemigo.png");
 }
 
 function setup() {
@@ -87,7 +87,7 @@ function activarDisparos(lista, color, aura) {
 
 function crearHileraEnemigos(posicionY) {
     for (posicionX = 40; posicionX < width - 60; posicionX += 50) {
-        enemigo = new Enemigo(posicionX, posicionY);
+        var enemigo = new Enemigo(posicionX, posicionY);
         enemigo.crear();
 
         listaEnemigos.push(enemigo);
