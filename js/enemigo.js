@@ -10,7 +10,7 @@ class Enemigo {
 	}
 
 	moverse() {
-		this.posicionY += 5;
+		this.posicionY += 0.2;
 	}
 
 	disparar() {
@@ -21,12 +21,14 @@ class Enemigo {
 		);
 		disparo.crear()
 		disparosEnemigos.push(disparo);
+		audioDisparoEnemigo.play();
 	}
 
 	fueImpactado(disparo) {
 		if ((disparo.posicionX > this.posicionX) && (disparo.posicionX < this.posicionX + 40)) {
 			if (disparo.posicionY <= this.posicionY + 40) {
 				this.estaVivo = false;
+				audioMuerteEnemigo.play()
 				return true;
 			}
 		} else {

@@ -18,11 +18,18 @@ var jugador;
 
 // Colores
 var azul = "#1082c8"
-var celeste ="#33b2ff"
+var celeste = "#33b2ff"
 var rojo = "#ec360f"
 var naranja = "#f09811"
 
 function preload() {
+	musicaFondo = loadSound("media/musicaFondo.mp3")
+	audioDisparoJugador = loadSound("media/disparoJugador.wav");
+	audioDisparoEnemigo = loadSound("media/disparoEnemigo.wav");
+	audioJugadorHerido = loadSound("media/jugadorHerido.wav");
+	audioMuerteJugador = loadSound("media/muerteJugador.wav");
+	audioMuerteEnemigo = loadSound("media/muerteEnemigo.wav");
+	audioVictoria = loadSound("media/victoria.wav")
 	imagenCielo = loadImage("media/cielo.jpg");
 	spriteJugador = loadImage("media/jugador.png");
 	spriteEnemigo = loadImage("media/enemigo.png");
@@ -31,39 +38,74 @@ function preload() {
 function setup() {
 	createCanvas(500, 500);
 	jugador = new Jugador(225);
+	musicaFondo.setVolume(0.25);
+	musicaFondo.play()
 }
 
 function draw() {
 	background(imagenCielo);
 
 	if (partidaRecienCreada) {
-		crearHileraEnemigos(20);
-		crearHileraEnemigos(120);
-		crearHileraEnemigos(220);
+		crearHileraEnemigos(-20);
+		crearHileraEnemigos(-120);
+		crearHileraEnemigos(-220);
 		partidaRecienCreada = false;
 	} else {
 		enemigosVivos = listaEnemigos.filter(enemigo => enemigo.estaVivo)
 		enemigosVivos.forEach(enemigo => enemigo.crear())
+
+		if (listaEnemigos.length === 0) {
+			detenerPartida(audioVictoria)
+		}
 	}
 
-	for (var enemigo of listaEnemigos) {
-		for (var disparo of disparosJugador) {
-			if (enemigo.estaVivo) {
-				if (enemigo.fueImpactado(disparo)) {
-					indiceDisparo = disparosJugador.indexOf(disparo)
-					disparosJugador.splice(indiceDisparo, 1);
+	for (var enemigo in listaEnemigos) {
+		enemigoActual = listaEnemigos[enemigo];
+		enemigoActual.moverse();
+		//esperar(1000).then(activarEnemigo(enemigoActual));
+		for (var disparo in disparosJugador) {
+			disparoActual = disparosJugador[disparo];
+			if (enemigoActual.estaVivo) {
+				if (enemigoActual.fueImpactado(disparoActual)) {
+					disparosJugador.splice(disparo, 1);
+					listaEnemigos.splice(enemigo, 1)
 				}
 			}
 		}
 	}
 
 	/*
-	enemigo.disparar();
-	activarDisparos(disparosEnemigos, rojo, naranja);
+	for (var enemigo of listaEnemigos) {
+		for (var disparo in disparosEnemigos) {
+			if (jugador.fueImpactado(disparo)) {
+				audioJugadorHerido.play();
+				disparosEnemigos.splice(disparo, 1);
+			}
+		}
+	}
 	*/
 
 	jugador.crear();
 	activarDisparos(disparosJugador, azul, celeste);
+
+}
+
+/*
+function activarEnemigo(enemigo) {
+	var valorAleatorio = Math.floor(Math.random() * (1000 - 1 + 1) + 1)
+	activarDisparos(disparosEnemigos, rojo, naranja);
+	
+	enemigo.moverse();
+	if (valorAleatorio === 1) {
+		enemigo.disparar();
+	}
+}
+*/
+
+function detenerPartida(audio) {
+	noLoop();
+	musicaFondo.stop();
+	audio.play();
 }
 
 function activarDisparos(lista, color, aura) {
@@ -81,7 +123,8 @@ function crearHileraEnemigos(posicionY) {
 	}
 }
 
-function mousePressed() {
-	jugador.disparar();
-	console.log(jugador.posicionX);
+function esperar(milisegundos) {
+	return new Promise((resolve) => {
+		setTimeout(resolve, milisegundos);
+	})
 }

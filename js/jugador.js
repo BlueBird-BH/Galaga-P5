@@ -1,3 +1,7 @@
+function mousePressed() {
+	jugador.disparar();
+}
+
 class Jugador {
 	constructor(posicionX) {
 		this.posicionX = posicionX;
@@ -28,5 +32,17 @@ class Jugador {
 		);
 		disparo.crear()
 		disparosJugador.push(disparo);
+		audioDisparoJugador.play()
+	}
+
+	fueImpactado(disparo) {
+		if ((disparo.posicionX > this.posicionX) && (disparo.posicionX < this.posicionX + 40)) {
+			if (disparo.posicionY <= this.posicionY + 40) {
+				audioMuerteEnemigo.play()
+				return true;
+			}
+		} else {
+			return false;
+		}
 	}
 }
