@@ -13,17 +13,6 @@ class Enemigo {
 		this.posicionY += 0.2;
 	}
 
-	disparar() {
-		var disparo = new Disparo(
-			this.posicionX + 18.2,
-			this.posicionY,
-			5
-		);
-		disparo.crear()
-		disparosEnemigos.push(disparo);
-		audioDisparoEnemigo.play();
-	}
-
 	fueImpactado(disparo) {
 		if ((disparo.posicionX > this.posicionX) && (disparo.posicionX < this.posicionX + 40)) {
 			if (disparo.posicionY <= this.posicionY + 40) {
