@@ -9,200 +9,122 @@ Proyecto para la clase de
 Universidad de La Sabana
 */
 
-firstTime = true;
-//Posición inicial del jugador
-var x = 225;
-//Color del jugador
-var rojo = "#FF5733";
-var enemies = [];
-var disparos = [];
-var player;
-//Cargar el fondo
+// Variables
+var partidaRecienCreada = true;
+var listaEnemigos = [];
+var disparosEnemigos = [];
+var disparosJugador = [];
+var jugador;
+
+// Colores
+var azul = "#1082c8"
+var celeste = "#33b2ff"
+var rojo = "#ec360f"
+var naranja = "#f09811"
+
 function preload() {
-	imagen = "media/cielo.jpg";
-	cielo = loadImage(imagen);
-	imagen1 = "media/player.png";
-	playerImg = loadImage(imagen1);
-	imagen2 = "media/enemy.png";
-	enemyImg = loadImage(imagen2);
+	musicaFondo = loadSound("media/musicaFondo.mp3")
+	audioDisparoJugador = loadSound("media/disparoJugador.wav");
+	audioDisparoEnemigo = loadSound("media/disparoEnemigo.wav");
+	audioJugadorHerido = loadSound("media/jugadorHerido.wav");
+	audioMuerteJugador = loadSound("media/muerteJugador.wav");
+	audioMuerteEnemigo = loadSound("media/muerteEnemigo.wav");
+	audioVictoria = loadSound("media/victoria.wav")
+	imagenCielo = loadImage("media/cielo.jpg");
+	spriteJugador = loadImage("media/jugador.png");
+	spriteEnemigo = loadImage("media/enemigo.png");
 }
 
 function setup() {
 	createCanvas(500, 500);
-	player = new Player();
+	jugador = new Jugador(225);
+	musicaFondo.setVolume(0.25);
+	musicaFondo.play()
 }
 
 function draw() {
-	background(cielo);
+	background(imagenCielo);
 
-	//Pinta al jugador
-	fill(rojo);
+	if (partidaRecienCreada) {
+		crearHileraEnemigos(-20);
+		crearHileraEnemigos(-120);
+		crearHileraEnemigos(-220);
+		partidaRecienCreada = false;
+	} else {
+		enemigosVivos = listaEnemigos.filter(enemigo => enemigo.estaVivo)
+		enemigosVivos.forEach(enemigo => enemigo.crear())
 
-	//dibuja al jugador, tomando X en cada posición, si X cambia, el jugador se mueve.
-	player.draw();
-	player.reconocerInput();
-
-	var enemigos (width, Y++){
-		//Dibuja los enemigos la primera vez
-		if (firstTime) {
-			//Crea a los enemigos
-			for (i = 40; i < width - 60; i += 50) {
-				enemy = new Enemy(i = 20);
-				enemy.draw();
-
-				//introduce en el arreglo enemies, el enemigo creado en este for.
-				append(enemies, enemy);
-			}
-			// Segunda linea de enemigos
-			for (i = 40, 100; i < width - 60; i += 50, 50) {
-				enemy = new Enemy(i, 70 + 50);
-				enemy.draw();
-				//introduce en el arreglo enemies, el enemigo creado en este for.
-				append(enemies, enemy);
-			}
-			//Tercera linea 
-
-			for (i = 40, 100; i < width - 60; i += 50, 50) {
-				enemy = new Enemy(i, 120);
-				enemy.draw();
-				//introduce en el arreglo enemies, el enemigo creado en este for.
-				append(enemies, enemy);
-			}
+		if (listaEnemigos.length === 0) {
+			detenerPartida(audioVictoria)
 		}
-
 	}
 
-	//Dibuja los enemigos el resto de veces.
-	if (!firstTime) {
-		for (i = 0; i < enemies.length; i++) {
-			if (enemies[i].vive()) {
-				enemies[i].draw();
+	for (var enemigo in listaEnemigos) {
+		enemigoActual = listaEnemigos[enemigo];
+		enemigoActual.moverse();
+		//esperar(1000).then(activarEnemigo(enemigoActual));
+		for (var disparo in disparosJugador) {
+			disparoActual = disparosJugador[disparo];
+			if (enemigoActual.estaVivo) {
+				if (enemigoActual.fueImpactado(disparoActual)) {
+					disparosJugador.splice(disparo, 1);
+					listaEnemigos.splice(enemigo, 1)
+				}
 			}
 		}
 	}
 
-
-
-	firstTime = false;
-
-	//hace avanzar verticalmente los disparos
-	for (i = 0; i < disparos.length; i++) {
-		disparos[i].avanza();
-	}
-
-	//Revisa constantemente si los enemigos han recibido disparos, en caso de ser así, quita al enemigo del mapa, y elimina al disparo.
-	for (i = 0; i < enemies.length; i++) {
-		for (j = 0; j < disparos.length; j++) {
-			if (enemies[i].muere(disparos[j])) {
-				disparos.splice(j, 1);
+	/*
+	for (var enemigo of listaEnemigos) {
+		for (var disparo in disparosEnemigos) {
+			if (jugador.fueImpactado(disparo)) {
+				audioJugadorHerido.play();
+				disparosEnemigos.splice(disparo, 1);
 			}
 		}
+	}
+	*/
+
+	jugador.crear();
+	activarDisparos(disparosJugador, azul, celeste);
+
+}
+
+/*
+function activarEnemigo(enemigo) {
+	var valorAleatorio = Math.floor(Math.random() * (1000 - 1 + 1) + 1)
+	activarDisparos(disparosEnemigos, rojo, naranja);
+	
+	enemigo.moverse();
+	if (valorAleatorio === 1) {
+		enemigo.disparar();
+	}
+}
+*/
+
+function detenerPartida(audio) {
+	noLoop();
+	musicaFondo.stop();
+	audio.play();
+}
+
+function activarDisparos(lista, color, aura) {
+	fill(color);
+	stroke(aura);
+	lista.forEach(disparo => disparo.moverse());
+}
+
+function crearHileraEnemigos(posicionY) {
+	for (posicionX = 40; posicionX < width - 60; posicionX += 50) {
+		enemigo = new Enemigo(posicionX, posicionY);
+		enemigo.crear();
+
+		listaEnemigos.push(enemigo);
 	}
 }
 
-function mouseClicked() {
-	player.disparar();
-}
-
-class Player {
-	constructor() {
-		this.x = x;
-	}
-
-	draw() {
-		image(playerImg, this.x, 425);
-	}
-
-	//reconoce el input, y mueve el jugador hacia el lado correspondiente
-	reconocerInput() {
-		if (keyIsDown(LEFT_ARROW)) {
-			if (this.x > 0)
-				this.x -= 3;
-		}
-		if (keyIsDown(RIGHT_ARROW)) {
-			if (this.x + 64 < width)
-				this.x += 3;
-		}
-	}
-
-	//Crea el disparo
-	disparar() {
-		var disparo = new Disparo(this.x);
-		append(disparos, disparo);
-		print(this.x);
-	}
-
-	//devuelve la posición actual del jugador
-	posicionX() {
-		return this.x;
-	}
-}
-
-class Enemy {
-	constructor(posX, posY) {
-		this.x = posX;
-		this.y = posY;
-		this.life = true;
-	}
-
-	draw() {
-		image(enemyImg, this.x, this.y);
-	}
-
-	//Moverá al enemigo hacia abajo
-	move() {
-		this.y += 5;
-	}
-
-	//Calcula si el enemigo ha sido o no tocado por un disparo
-	muere(disparo) {
-		if (disparo.posicionX() > this.x && disparo.posicionX() < this.x + 40) {
-			if (disparo.posicionY() <= this.y + 40) {
-				this.life = false;
-				return true;
-			}
-		}
-		else {
-			return false;
-		}
-	}
-
-	vive() {
-		return this.life;
-	}
-
-	posicionX() {
-		return this.x;
-	}
-
-	posicionY() {
-		return this.y;
-	}
-}
-
-class Disparo {
-	constructor(posX) {
-		this.x = posX + 32;
-		this.y = 425;
-		this.velocidad = -5;
-	}
-
-	draw() {
-		rect(this.x + 32, this.y, 5, 15);
-	}
-
-	avanza() {
-		this.y += this.velocidad;
-		if (this.velocidad <= -1)
-			this.velocidad += 0.05;
-		rect(this.x, this.y, 5, 15);
-	}
-
-	posicionX() {
-		return this.x;
-	}
-
-	posicionY() {
-		return this.y;
-	}
+function esperar(milisegundos) {
+	return new Promise((resolve) => {
+		setTimeout(resolve, milisegundos);
+	})
 }
