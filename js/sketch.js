@@ -25,9 +25,6 @@ var naranja = "#f09811"
 function preload() {
 	musicaFondo = loadSound("media/musicaFondo.mp3")
 	audioDisparoJugador = loadSound("media/disparoJugador.wav");
-	audioDisparoEnemigo = loadSound("media/disparoEnemigo.wav");
-	audioJugadorHerido = loadSound("media/jugadorHerido.wav");
-	audioMuerteJugador = loadSound("media/muerteJugador.wav");
 	audioMuerteEnemigo = loadSound("media/muerteEnemigo.wav");
 	audioVictoria = loadSound("media/victoria.wav")
 	imagenCielo = loadImage("media/cielo.jpg");
@@ -62,7 +59,6 @@ function draw() {
 	for (var enemigo in listaEnemigos) {
 		enemigoActual = listaEnemigos[enemigo];
 		enemigoActual.moverse();
-		//esperar(1000).then(activarEnemigo(enemigoActual));
 		for (var disparo in disparosJugador) {
 			disparoActual = disparosJugador[disparo];
 			if (enemigoActual.estaVivo) {
@@ -74,33 +70,10 @@ function draw() {
 		}
 	}
 
-	/*
-	for (var enemigo of listaEnemigos) {
-		for (var disparo in disparosEnemigos) {
-			if (jugador.fueImpactado(disparo)) {
-				audioJugadorHerido.play();
-				disparosEnemigos.splice(disparo, 1);
-			}
-		}
-	}
-	*/
-
 	jugador.crear();
 	activarDisparos(disparosJugador, azul, celeste);
 
 }
-
-/*
-function activarEnemigo(enemigo) {
-	var valorAleatorio = Math.floor(Math.random() * (1000 - 1 + 1) + 1)
-	activarDisparos(disparosEnemigos, rojo, naranja);
-	
-	enemigo.moverse();
-	if (valorAleatorio === 1) {
-		enemigo.disparar();
-	}
-}
-*/
 
 function detenerPartida(audio) {
 	noLoop();
@@ -121,10 +94,4 @@ function crearHileraEnemigos(posicionY) {
 
 		listaEnemigos.push(enemigo);
 	}
-}
-
-function esperar(milisegundos) {
-	return new Promise((resolve) => {
-		setTimeout(resolve, milisegundos);
-	})
 }
