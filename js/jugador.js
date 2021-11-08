@@ -34,15 +34,4 @@ class Jugador {
 		disparosJugador.push(disparo);
 		audioDisparoJugador.play()
 	}
-
-	fueImpactado(disparo) {
-		if ((disparo.posicionX > this.posicionX) && (disparo.posicionX < this.posicionX + 40)) {
-			if (disparo.posicionY <= this.posicionY + 40) {
-				audioMuerteEnemigo.play()
-				return true;
-			}
-		} else {
-			return false;
-		}
-	}
 }
